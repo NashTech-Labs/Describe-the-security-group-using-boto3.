@@ -5,48 +5,48 @@ import boto3
 from botocore.exceptions import ClientError
 import json
 
-AWS_REGION = input("Please enter the AWS_REGION")
+REGION = input("Please enter the your REGION Name: ")
 
-# this is the configration for the logger
+# this is the configration for the logger_for
 
-logger = logging.getLogger()
+logger_for = logging.getlogger_for()
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s: %(levelname)s: %(message)s')
 
-vpc_client = boto3.client("ec2", region_name=AWS_REGION)
+response = boto3.client("ec2", region_name=REGION)
 
 
 def describe_group(tag, tag_values, max_items):
 
     try:
-        paginator = vpc_client.get_paginator('describe_group')
+        pag = response.get_paginator('describe_group')
 
-        response_iterator = paginator.paginate(
+        response_iterator = pag.paginate(
             Filters=[{
                 'Name': f'tag:{tag}',
                 'Values': tag_values
             }],
             PaginationConfig={'MaxItems': max_items})
 
-        full_result = response_iterator.build_full_result()
+        result = response_iterator.build_full_result()
 
-        security_groups_list = []
+        grps_list = []
 
-        for page in full_result['SecurityGroups']:
-            security_groups_list.append(page)
+        for page in result['SecurityGroups']:
+            grps_list.append(page)
 
     except ClientError:
-        logger.exception('Security Groups can not be describe.')
+        logger_for.exception('Sorry, Security Groups can not be describe.')
         raise
     else:
-        return security_groups_list
+        return grps_list
 
 
 if __name__ == '__main__':
-    TAG = 'Name'
-    TAG_VALUES = ['Techhub_template_grp']
-    MAX_ITEMS = 10
-    security_groups = describe_group(TAG, TAG_VALUES, MAX_ITEMS)
-    logger.info('This is your Security Groups details: ')
-    for security_group in security_groups:
-        logger.info(json.dumps(security_groups, indent=4) + '\n')
+    TAG = input("Enter the TAG NAME: ")
+    VALUES = input("Enter the TAG VALUE: ")
+    MAXIMUM_ITEMS = int(input("Enter the Value for MAX ITEMS: "))
+    groups = describe_group(TAG, VALUES, MAXIMUM_ITEMS)
+    logger_for.info('This is your Security Groups details: ')
+    for grp in groups:
+        logger_for.info(json.dumps(grp, indent=4) + '\n')
