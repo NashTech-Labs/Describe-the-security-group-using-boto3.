@@ -1,3 +1,4 @@
+# By MuZakkir Saifi
 # import logging for get the logs in  execution
 import logging
 # import the boto3 which will use to interact  with the aws
@@ -9,17 +10,17 @@ REGION = input("Please enter the your REGION Name: ")
 
 # this is the configration for the logger_for
 
-logger_for = logging.getlogger_for()
+logger_for = logging.getLogger()
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s: %(levelname)s: %(message)s')
 
-response = boto3.client("ec2", region_name=REGION)
+grp_client = boto3.client("ec2", region_name=REGION)
 
 
 def describe_group(tag, tag_values, max_items):
 
     try:
-        pag = response.get_paginator('describe_group')
+        pag = grp_client.get_paginator('describe_security_groups')
 
         response_iterator = pag.paginate(
             Filters=[{
@@ -44,9 +45,18 @@ def describe_group(tag, tag_values, max_items):
 
 if __name__ == '__main__':
     TAG = input("Enter the TAG NAME: ")
-    VALUES = input("Enter the TAG VALUE: ")
+    VALUES = []
+    # user will enter the number of elements
+    number = int(input("Enter number of elements : "))
+    for i in range(0, number):
+        elements = input("enter you Tag value")
+    
+        VALUES.append(elements)
     MAXIMUM_ITEMS = int(input("Enter the Value for MAX ITEMS: "))
     groups = describe_group(TAG, VALUES, MAXIMUM_ITEMS)
     logger_for.info('This is your Security Groups details: ')
     for grp in groups:
         logger_for.info(json.dumps(grp, indent=4) + '\n')
+        
+        
+ 
